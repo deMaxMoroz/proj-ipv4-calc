@@ -15,23 +15,27 @@ int main(){
     std::cout << "Default Mask Will be set - 24 (255.255.255.0)" << std::endl;
     std::cout << "Enter your mask (Press 'Enter' for Default): ";
     std::cin >> maskEntered;
+    while (maskEntered > 32 && maskEntered < 0){
+      std::cout << "Not valid mask. Retry please: " << '\n';
+      std::cin >> maskEntered;
+    }
     ip1 = ipAddress(ipEntered, maskEntered);
+    while (!ip1.getFlag()){
+      std::cout << "Your input was invalid. Please retry: ";
+      std::cin >> ipEntered;
+      ip1 = ipAddress(ipEntered, maskEntered);
+    }
   } else {
     ip1 = ipAddress(ipEntered);
+    while (!ip1.getFlag()){
+      std::cout << "Your input was invalid. Please retry: ";
+      std::cin >> ipEntered;
+      ip1 = ipAddress(ipEntered);
+    }
   }
-  std::cout << "+ Your IPv4: ";
-  ip1.printIP(); 
-  std::cout << "[ Binary IPv4: " << ip1.getBinaryIP() << " ]" << '\n';
-  std::cout << "#---------------------------------------------------#" << '\n';
-  std::cout << "|                Choose function:                   |" << '\n';
-  std::cout << "|               1. Print netmask                    |" << '\n';
-  std::cout << "|               2. Print wildcard                   |" << '\n';
-  std::cout << "|               3. Print network                    |" << '\n';
-  std::cout << "|               4. Print broadcast                  |" << '\n';
-  std::cout << "|               5. Print everything above           |" << '\n';
-  std::cout << "|                                                   |" << '\n';
-  std::cout << "#---------------------------------------------------#" << '\n';
   
+  std::string binIp = ip1.getBinaryIP();
+
   std::string binNetmask = ip1.getBinaryNetmask();
   int* netmaskPointer = ip1.getDecNetmask();
   
@@ -43,6 +47,23 @@ int main(){
 
   std::string binBroadcast = ip1.getBinaryBroadcast();
   int* broadcastPointer = ip1.getDecBroadcast();
+
+  int hosts = ip1.calculateHosts();
+
+  std::cout << "+ Your IPv4: ";
+  ip1.printIP(); 
+  std::cout << "[ Binary IPv4: " << binIp << " ]" << '\n';
+  std::cout << "~ Amount of hosts in network = " << hosts << " ~" << '\n';
+  std::cout << "#---------------------------------------------------#" << '\n';
+  std::cout << "|                Choose function:                   |" << '\n';
+  std::cout << "|               1. Print netmask                    |" << '\n';
+  std::cout << "|               2. Print wildcard                   |" << '\n';
+  std::cout << "|               3. Print network                    |" << '\n';
+  std::cout << "|               4. Print broadcast                  |" << '\n';
+  std::cout << "|               5. Print everything above           |" << '\n';
+  std::cout << "|                                                   |" << '\n';
+  std::cout << "#---------------------------------------------------#" << '\n';
+  
 
   char choice;
   std::cout << "Enter your choice: ";

@@ -8,7 +8,8 @@ public:
   ipAddress(){};
   ipAddress(std::string ipValueFull){
     if (ipValueFull.length()<7 || ipValueFull.length()>18){
-      std::cout << "Not a Valid IP" << std::endl;
+      std::cout << "Not a Valid IP (Err: too long IP!)" << std::endl;
+      this->correct = false;
       return;
     }
     std::string maskStr = ipValueFull.substr(ipValueFull.find("/") + 1, 2);
@@ -16,9 +17,21 @@ public:
     for (const auto& c : maskStr){
         this->netmask = this->netmask*10 + (c - '0');
     }
-    if (this->netmask < 0) this->netmask += 32;
-    if (this->netmask>32) this->netmask -= 32;
-
+    if (this->netmask < 0 || this->netmask > 32){
+      std::cout << "Not a Valid Mask" << std::endl;
+      this->correct = false;
+      return;
+    }
+  /*
+    if (this->netmask < 0){
+      std::cout << "Not a valid mask! Attempting to resolve." << '\n'; 
+      this->netmask += 32;
+    }
+    if (this->netmask>32){
+      std::cout << "Not a valid mask! Attempting to resolve." << '\n'; 
+      this->netmask -= 32;
+    }
+*/
     std::string ipValue = ipValueFull.substr(0, ipValueFull.length() - maskStr.length());
     int tmp = 0;
     int count = 0;
@@ -28,19 +41,21 @@ public:
 
       }else{
         if (tmp>255 || tmp <0){
-          std::cout << "Not a valid ip!" << std::endl;
-          return;
+          std::cout << "Invalid octet = " << tmp <<'\n'; 
+          this->correct = false;
         }
+
         octets[count++] = tmp;
         tmp = 0;
       }
     }
+
+
   };
 
 
   ipAddress(std::string ipValue, short netmask){
-    if (netmask < 0) this->netmask += 32;
-    if (netmask>32) this->netmask -= 32;
+
     this->netmask = netmask;
     int tmp = 0;
     int count = 0;
@@ -51,8 +66,8 @@ public:
 
       } else {
         if (tmp>255 || tmp <0){
-          std::cout << "Not a valid ip!" << std::endl;
-          return;
+          std::cout << "Invalid octet = " << tmp <<'\n'; 
+          this->correct = false;
         }
         octets[count++] = tmp;
 
@@ -78,8 +93,11 @@ public:
     std::string bin;
 
     while (octet > 0){
-      bin += (char) octet%2 + asciicode;
+
+      char res = octet%2;
+      bin += res + asciicode;
       octet /= 2;
+
     }
     std::reverse(bin.begin(), bin.end());
     while (bin.length() < 8){
@@ -279,6 +297,18 @@ public:
     return broadcastOcts;
   }
 
+  int& calculateHosts(){
+    this->hosts = (int)pow(2,32 - this->netmask) - 2;
+    if (this->netmask == 32){
+      this->hosts = 0;
+    }
+    return hosts;
+  }
+
+  bool& getFlag(){
+    return correct;
+  }
+
 private:
   int octets[4];
   int netmaskOcts[4];
@@ -287,6 +317,7 @@ private:
   int broadcastOcts[4];
   short netmask = 0;
   std::string binaryIp, binaryNetwork, binaryWildcard, binaryNetmask, binaryBroadcast;
-  int minHost,maxHost,hosts;
+  int hosts;
+  bool correct = true;
 
 };
